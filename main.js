@@ -1,4 +1,4 @@
-const { Plugin, PluginSettingTab, Setting, TFolder, AbstractInputSuggest } = require('obsidian');
+const { Plugin, PluginSettingTab, Setting, TFolder, AbstractInputSuggest, Notice } = require('obsidian');
 
 const DEFAULT_SETTINGS = {
     mappings: [
@@ -132,6 +132,7 @@ class FolderAccentsSettingTab extends PluginSettingTab {
     async display() {
         const { containerEl } = this;
         containerEl.empty();
+        containerEl.classList.add('folder-accents-settings');
         
         containerEl.createEl('h2', { text: 'Folder Accents' });
         containerEl.createEl('p', { 
@@ -172,17 +173,21 @@ class FolderAccentsSettingTab extends PluginSettingTab {
                 .setName(mapping.folder || 'New folder')
                 .setDesc(`Accent: ${mapping.color}`);
             
-            // Add more padding to the setting control area
-            setting.controlEl.style.gap = '12px';
+            // Color picker
+            setting.addColorPicker(color => {
+                color.setValue(mapping.color);
+                
+                color.onChange(async (value) => {
+                    this.plugin.settings.mappings[realIndex].color = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                });
+            });
             
             // Text input with folder suggester
             setting.addText(text => {
                 text.setPlaceholder('Type to search folders...');
                 text.setValue(mapping.folder);
-                
-                // Add padding to the input
-                text.inputEl.style.padding = '6px 10px';
-                text.inputEl.style.minWidth = '180px';
                 
                 const suggester = new FolderSuggest(
                     this.app,
@@ -199,24 +204,11 @@ class FolderAccentsSettingTab extends PluginSettingTab {
                 });
             });
             
-            // Color picker
-            setting.addColorPicker(color => {
-                color.setValue(mapping.color);
-                
-                color.onChange(async (value) => {
-                    this.plugin.settings.mappings[realIndex].color = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                });
-            });
-            
-            // Remove button with padding
+            // Remove button
             setting.addButton(btn => {
                 btn.setButtonText('×');
                 btn.setTooltip('Remove');
                 btn.setWarning();
-                btn.buttonEl.style.padding = '4px 12px';
-                btn.buttonEl.style.marginLeft = '4px';
                 
                 btn.onClick(async () => {
                     this.plugin.settings.mappings.splice(realIndex, 1);
@@ -225,6 +217,78 @@ class FolderAccentsSettingTab extends PluginSettingTab {
                 });
             });
         });
+        
+        // Divider before import/export
+        const ioDivider = containerEl.createEl('div');
+        ioDivider.style.borderTop = '1px solid var(--background-modifier-border)';
+        ioDivider.style.margin = '20px 0';
+        
+        // Import / Export section
+        containerEl.createEl('h3', { text: 'Backup & Restore' });
+        
+        new Setting(containerEl)
+            .setName('Export settings')
+            .setDesc('Download your folder-colour mappings as a JSON file.')
+            .addButton(btn => btn
+                .setButtonText('Export')
+                .onClick(() => {
+                    const data = JSON.stringify(this.plugin.settings, null, 2);
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'folder-accents-settings.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    new Notice('Folder Accents settings exported!');
+                }));
+        
+        new Setting(containerEl)
+            .setName('Import settings')
+            .setDesc('Load folder-colour mappings from a previously exported JSON file.')
+            .addButton(btn => btn
+                .setButtonText('Import')
+                .onClick(() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    input.style.display = 'none';
+                    
+                    input.onchange = async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        
+                        try {
+                            const text = await file.text();
+                            const imported = JSON.parse(text);
+                            
+                            // Basic validation
+                            if (!Array.isArray(imported.mappings)) {
+                                throw new Error('Invalid file: "mappings" array not found.');
+                            }
+                            
+                            for (const m of imported.mappings) {
+                                if (typeof m.folder !== 'string' || typeof m.color !== 'string') {
+                                    throw new Error('Invalid file: each mapping needs a folder and a color.');
+                                }
+                            }
+                            
+                            this.plugin.settings = imported;
+                            await this.plugin.saveSettings();
+                            new Notice('Folder Accents settings imported successfully!');
+                            this.display();
+                        } catch (err) {
+                            new Notice('Import failed: ' + err.message);
+                        }
+                        
+                        document.body.removeChild(input);
+                    };
+                    
+                    document.body.appendChild(input);
+                    input.click();
+                }));
     }
 }
 

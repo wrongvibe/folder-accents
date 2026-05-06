@@ -1,0 +1,13 @@
+/* ============================================
+   Folder Accents Plugin — Settings UI Styles
+   ============================================ */
+
+/* Add comfortable spacing between controls in each row */
+.folder-accents-settings .setting-item-control {
+    gap: 16px;
+}
+
+/* Ensure the search input has a sensible minimum width */
+.folder-accents-settings .setting-item-control input[type="text"] {
+    min-width: 180px;
+}
