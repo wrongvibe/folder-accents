@@ -148,7 +148,7 @@ class FolderAccentsSettingTab extends PluginSettingTab {
                 .setButtonText('+ Add Folder')
                 .setCta()
                 .onClick(async () => {
-                    this.plugin.settings.mappings.push({ folder: '', color: '#2ECC71' });
+                    this.plugin.settings.mappings.push({ folder: '', color: '#000080' });
                     await this.plugin.saveSettings();
                     this.display();
                 }));
