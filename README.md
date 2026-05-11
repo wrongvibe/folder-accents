@@ -2,19 +2,24 @@
 
 Automatically change Obsidian's accent colour based on which folder your note is in.
 
+> **Companion plugin for the [COLOURS](https://github.com/emmabrillante/COLOURS) theme.**
+> COLOURS derives its entire palette — link colours, highlights, UI accents — from a single `--color-accent` variable. Folder Accents extends that by letting different parts of your vault have their own distinct colour identity, automatically, without any manual switching.
+>
+> Works with any theme that respects `--color-accent`, but it is designed specifically to unlock COLOURS' per-folder palette feature.
+
 ## How It Works
 
-When you open a note, this plugin checks which folder that note lives in. If the folder has a colour assigned, the entire UI shifts to that accent colour instantly. Open a note in a different folder? The colour changes automatically.
-
-Works with any theme that uses `--color-accent` (like COLOURS).
+When you open a note, the plugin checks which folder it lives in. If the folder has a colour assigned, the entire UI shifts to that accent colour instantly. Open a note in a different folder and the colour follows.
 
 ## Features
 
 - **Per-folder accent colours** — assign any colour to any folder
-- **Subfolder inheritance** — `Projects/Work` inherits from `Projects` if no exact match
+- **Subfolder inheritance** — `Projects/Work` inherits from `Projects` if no exact match is defined
+- **Most-specific match wins** — no need to worry about order; deeper paths always take priority
 - **Native folder search** — type to find folders, just like Obsidian's core plugins
 - **Live preview** — colour changes the moment you switch files
 - **No manual toggling** — completely automatic
+- **Backup & Restore** — export and import your mappings as JSON
 
 ## Installation
 
@@ -39,6 +44,8 @@ Works with any theme that uses `--color-accent` (like COLOURS).
 4. Pick a colour with the colour picker
 5. Open any note in that folder — the accent changes automatically
 
+To back up your mappings, use **Export** in the settings panel. To restore, use **Import**.
+
 ## Example
 
 | Folder | Colour | Effect |
@@ -46,6 +53,22 @@ Works with any theme that uses `--color-accent` (like COLOURS).
 | `_Templates` | `#7F8C8D` (grey) | Grey UI when editing templates |
 | `_Skills` | `#5DADE2` (light blue) | Blue UI when viewing skills |
 | `02 Daily` | `#E74C3C` (red) | Red UI for journal entries |
+
+## Folder Priority
+
+When a note could match more than one mapped folder, the **most specific path always wins** — meaning the longest matching folder path takes precedence, regardless of the order mappings appear in settings.
+
+**Example:**
+
+| Mapping | Colour |
+|---|---|
+| `Projects` | Blue |
+| `Projects/Work` | Red |
+| `Projects/Work/Active` | Green |
+
+Opening a note in `Projects/Work/Active/note.md` applies **Green**, because `Projects/Work/Active` is the longest match. A note in `Projects/Work/old-note.md` gets **Red**. A note directly in `Projects/` gets **Blue**.
+
+If only `Projects` is mapped, all notes inside it — including those in `Projects/Work` and deeper — inherit Blue. Add a more specific mapping at any time to override just that subtree.
 
 ## How It Works (Technical)
 

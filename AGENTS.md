@@ -48,32 +48,38 @@ body[data-folder-accent="folder-accent-{index}"] {
 
 ## Matching Logic
 ```javascript
-// Exact match or subfolder
-if (path === folder || path.startsWith(folder + '/')) {
-  matchedIndex = i;
-  break; // first match wins
-}
+// Longest (most specific) folder path wins
+this.settings.mappings.forEach((mapping, i) => {
+    const folder = mapping.folder;
+    if (folder && (path === folder || path.startsWith(folder + '/')) && folder.length > bestLen) {
+        bestIndex = i;
+        bestLen = folder.length;
+    }
+});
 ```
-- Mappings are checked in array order (settings order)
-- Subfolders inherit parent folder colour unless overridden by a more specific mapping listed earlier
+- Most specific (longest) folder path wins — `Projects/Work` beats `Projects` regardless of array order
 - No match → remove `data-folder-accent` attribute (revert to theme default)
 
 ## Settings Schema
 ```json
 {
   "mappings": [
-    { "folder": "_Templates", "color": "#7F8C8D" },
-    { "folder": "_Skills", "color": "#5DADE2" }
+    { "id": 1, "folder": "_Templates", "color": "#7F8C8D" },
+    { "id": 2, "folder": "_Skills", "color": "#5DADE2" }
   ]
 }
 ```
+Each mapping carries a stable `id` (set to `Date.now()` on creation) used for UI row identity — avoids the duplicate-empty-entry lookup bug.
+`loadSettings()` migrates existing entries without an `id` automatically.
 Stored in `.obsidian/plugins/folder-accents/data.json` (auto-managed by Obsidian's `saveData`/`loadData`).
 
 ## Recently Added
-- Native folder suggester using `AbstractInputSuggest`
-- Alphabetical sorting of folder mappings in settings UI
-- Add Folder button moved to top of settings panel
-- Padding adjustments on search input and remove button
+- Stable `id` field on each mapping — UI row identity no longer depends on duplicate-sensitive `findIndex`
+- Longest-path-first matching — most specific folder wins regardless of array order
+- Text input saves on blur / suggester select only (not on every keystroke)
+- Import validates CSS color values via `new Option().style`
+- Default new-mapping color changed to `#0d0d73`
+- `display()` no longer unnecessarily `async`
 
 ## Workflow
 - No build tools. Edit `main.js` directly.
