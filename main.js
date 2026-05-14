@@ -62,14 +62,69 @@ class FolderAccentsPlugin extends Plugin {
         this.registerEvent(this.app.workspace.on('file-open', () => this.updateAccent()));
         this.registerEvent(this.app.workspace.on('active-leaf-change', () => this.updateAccent()));
 
-        this.app.workspace.onLayoutReady(() => this.updateAccent());
+        // Canvas markdown embeds render inside sandboxed iframes whose document
+        // does not inherit the parent's CSS custom properties. Push --color-accent
+        // into each one directly. allow-same-origin lets us reach contentDocument.
+        this.iframeObserver = new MutationObserver((mutations) => {
+            for (const mut of mutations) {
+                for (const node of mut.addedNodes) {
+                    if (node.nodeType !== 1) continue;
+                    if (node.matches && node.matches('iframe.embed-iframe')) {
+                        this.setupIframe(node);
+                    } else if (node.querySelectorAll) {
+                        node.querySelectorAll('iframe.embed-iframe').forEach(f => this.setupIframe(f));
+                    }
+                }
+            }
+        });
+        this.iframeObserver.observe(document.body, { childList: true, subtree: true });
+
+        this.app.workspace.onLayoutReady(() => {
+            this.updateAccent();
+            document.querySelectorAll('iframe.embed-iframe').forEach(f => this.setupIframe(f));
+        });
 
         this.addSettingTab(new FolderAccentsSettingTab(this.app, this));
     }
 
     onunload() {
         if (this.styleEl) this.styleEl.remove();
+        if (this.iframeObserver) this.iframeObserver.disconnect();
         document.body.removeAttribute('data-folder-accent');
+        document.querySelectorAll('iframe.embed-iframe').forEach(iframe => {
+            try { iframe.contentDocument?.body?.style.removeProperty('--color-accent'); } catch (e) {}
+        });
+    }
+
+    setupIframe(iframe) {
+        const apply = () => this.applyAccentToIframe(iframe);
+        iframe.addEventListener('load', apply);
+        apply();
+    }
+
+    applyAccentToIframe(iframe) {
+        try {
+            const body = iframe.contentDocument?.body;
+            if (!body) return;
+            const color = this.getActiveColor();
+            if (color) {
+                body.style.setProperty('--color-accent', color, 'important');
+            } else {
+                body.style.removeProperty('--color-accent');
+            }
+        } catch (e) { /* cross-origin or detached */ }
+    }
+
+    getActiveColor() {
+        const attr = document.body.getAttribute('data-folder-accent');
+        if (!attr) return null;
+        const match = attr.match(/folder-accent-(\d+)/);
+        if (!match) return null;
+        return this.settings.mappings[parseInt(match[1])]?.color || null;
+    }
+
+    syncIframes() {
+        document.querySelectorAll('iframe.embed-iframe').forEach(f => this.applyAccentToIframe(f));
     }
 
     async loadSettings() {
@@ -96,11 +151,15 @@ class FolderAccentsPlugin extends Plugin {
     }
 
     updateAccent() {
-        const file = this.app.workspace.getActiveFile();
-        if (!file) {
-            document.body.removeAttribute('data-folder-accent');
-            return;
-        }
+        // Prefer the active leaf's primary file. When editing an embedded markdown
+        // inside a canvas, getActiveFile() returns the embedded note's file — but
+        // the leaf itself is still the canvas, so activeLeaf.view.file stays correct.
+        const leafFile = this.app.workspace.activeLeaf?.view?.file;
+        const file = leafFile || this.app.workspace.getActiveFile();
+
+        // Canvas card is being text-edited — keep current accent
+        if (document.querySelector('.canvas-node.is-editing')) return;
+        if (!file) return;
 
         const path = file.path;
         let bestIndex = -1;
@@ -120,6 +179,7 @@ class FolderAccentsPlugin extends Plugin {
         } else {
             document.body.removeAttribute('data-folder-accent');
         }
+        this.syncIframes();
     }
 }
 
