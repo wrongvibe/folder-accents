@@ -6,10 +6,7 @@
 const { Plugin, PluginSettingTab, Setting, TFolder, AbstractInputSuggest, Notice } = require('obsidian');
 
 const DEFAULT_SETTINGS = {
-    mappings: [
-        { id: 1, folder: '_Templates', color: '#7F8C8D' },
-        { id: 2, folder: '_Skills', color: '#5DADE2' }
-    ]
+    mappings: []
 };
 
 /* Custom suggester for folders */
