@@ -102,9 +102,10 @@ Stored in `.obsidian/plugins/folder-accents/data.json` (auto-managed by Obsidian
 - `display()` no longer unnecessarily `async`
 
 ## Workflow
+- Repo: `/Volumes/Documents/01 Projects/folder-accents/`
 - No build tools. Edit `main.js` directly.
-- To test: reload plugin in **Settings → Community Plugins**
-- To release: bump `version` in `manifest.json`, commit, push
+- To test: copy `main.js` to `<vault>/.obsidian/plugins/folder-accents/` and reload in **Settings → Community Plugins**
+- To release: bump `version` in `manifest.json`, commit, push to both remotes (`git push origin main && git push github main`), then create a GitHub release with `main.js`, `manifest.json`, `styles.css` tagged with the version number via `gh release create`
 
 ## Common Gotchas
 - `AbstractInputSuggest` requires `app` instance passed to constructor
