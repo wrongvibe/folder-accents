@@ -1,0 +1,10 @@
+{
+  "id": "folder-accents",
+  "name": "Folder Accents",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Automatically change accent colour based on which folder your note is in.",
+  "author": "Emma",
+  "authorUrl": "https://github.com/wrongvibe",
+  "isDesktopOnly": false
+}

@@ -1,0 +1,19 @@
+# User settings — each user has their own folder mappings
+data.json
+
+# macOS
+.DS_Store
+
+# Node modules (if any dev dependencies added later)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
