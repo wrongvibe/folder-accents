@@ -2,10 +2,12 @@
 
 Automatically change Obsidian's accent colour based on which folder your note is in.
 
-> **Companion plugin for the [COLOURS](https://github.com/emmabrillante/COLOURS) theme.**
-> COLOURS derives its entire palette — link colours, highlights, UI accents — from a single `--color-accent` variable. Folder Accents extends that by letting different parts of your vault have their own distinct colour identity, automatically, without any manual switching.
+![folder accents demo](assets/folder-accents.gif)
+
+> **Companion plugin for the [COLOURS](https://github.com/wrongvibe/colours) theme.**
+> COLOURS derives its entire palette from a single `--color-accent` variable. Folder Accents extends that by letting different parts of your vault have their own distinct colour identity, automatically, without any manual switching.
 >
-> Works with any theme that respects `--color-accent`, but it is designed specifically to unlock COLOURS' per-folder palette feature.
+> It is designed specifically to unlock COLOURS' per-folder palette feature. Might work with any theme that respects `--color-accent`.
 
 ## How It Works
 
@@ -18,7 +20,6 @@ When you open a note, the plugin checks which folder it lives in. If the folder 
 - **Most-specific match wins** — no need to worry about order; deeper paths always take priority
 - **Native folder search** — type to find folders, just like Obsidian's core plugins
 - **Live preview** — colour changes the moment you switch files
-- **No manual toggling** — completely automatic
 - **Backup & Restore** — export and import your mappings as JSON
 
 ## Installation
@@ -30,7 +31,7 @@ When you open a note, the plugin checks which folder it lives in. If the folder 
 3. Place both files there
 4. **Settings → Community Plugins** → enable **Folder Accents**
 
-### From Community Plugins (when published)
+### From Community Plugins
 
 1. **Settings → Community Plugins → Browse**
 2. Search for **Folder Accents**
@@ -44,15 +45,9 @@ When you open a note, the plugin checks which folder it lives in. If the folder 
 4. Pick a colour with the colour picker
 5. Open any note in that folder — the accent changes automatically
 
+![folder accents demo](assets/folder-accents.png)
+
 To back up your mappings, use **Export** in the settings panel. To restore, use **Import**.
-
-## Example
-
-| Folder | Colour | Effect |
-|--------|--------|--------|
-| `_Templates` | `#7F8C8D` (grey) | Grey UI when editing templates |
-| `_Skills` | `#5DADE2` (light blue) | Blue UI when viewing skills |
-| `02 Daily` | `#E74C3C` (red) | Red UI for journal entries |
 
 ## Folder Priority
 
@@ -90,4 +85,4 @@ Because Obsidian themes derive UI colours from `--color-accent`, the entire inte
 
 ## License
 
-MIT
+GPL-3.0

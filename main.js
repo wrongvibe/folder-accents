@@ -1,3 +1,8 @@
+/* Copyright (C) 2026 Emma
+   Github:  https://github.com/wrongvibe/folder-accents
+   Support: https://buymeacoffee.com/wrongvibe
+   SPDX-License-Identifier: GPL-3.0-only */
+
 const { Plugin, PluginSettingTab, Setting, TFolder, AbstractInputSuggest, Notice } = require('obsidian');
 
 const DEFAULT_SETTINGS = {
@@ -194,11 +199,20 @@ class FolderAccentsSettingTab extends PluginSettingTab {
         containerEl.empty();
         containerEl.classList.add('folder-accents-settings');
 
-        containerEl.createEl('h2', { text: 'Folder Accents' });
-        containerEl.createEl('p', {
-            text: 'Companion plugin for the COLOURS theme. Assigns a unique accent colour to each folder — the entire palette shifts automatically when you open a note.',
-            cls: 'setting-item-description'
-        });
+        containerEl.createEl('h3', { text: 'Folder Accents' });
+        const descEl = containerEl.createEl('p');
+        descEl.appendText('Companion plugin for the ');
+        descEl.createEl('a', { text: 'COLOURS', href: 'https://github.com/wrongvibe/colours' });
+        descEl.appendText(' theme. Assigns a unique accent colour to each folder — the entire palette shifts automatically when you open a note.');
+
+        const supportEl = containerEl.createEl('p');
+        supportEl.appendText('If you enjoy this plugin and ');
+        supportEl.createEl('a', { text: 'COLOURS', href: 'https://github.com/wrongvibe/colours' });
+        supportEl.appendText(', ');
+        const coffeeLink = supportEl.createEl('a', { href: 'https://buymeacoffee.com/wrongvibe', attr: { style: 'text-decoration: underline;' } });
+        coffeeLink.appendText('buy me a ');
+        coffeeLink.createEl('span', { text: '☕', attr: { style: 'font-size: 1.4em; vertical-align: middle; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;' } });
+        supportEl.appendText('!');
 
         const descDivider = containerEl.createEl('div');
         descDivider.style.borderTop = '1px solid var(--background-modifier-border)';
